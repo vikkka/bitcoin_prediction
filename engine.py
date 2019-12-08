@@ -18,21 +18,34 @@ est = timezone('US/Eastern')
 from twilio.rest import Client
 
 # Your Account SID from twilio.com/console
-account_sid = "*******"
+account_sid = "AC3899557667afcb2bbc20e9ebecf8befb"
 # Your Auth Token from twilio.com/console
-auth_token  = "*******"
+auth_token  = "18c9c35bafb8abb1c009e9aad25a0aec"
+
+btc = pd.read_csv('bitcoinprices.txt')
+btc.columns = ["Time","Price"]
+sent = pd.read_csv('sentiment6.txt')
+sent.columns = ["Time","Sentiment"]
+merged = sent.merge(btc, left_index=False, right_index=False, how="inner")
+merged.to_csv('merged_data.csv')
 
 client = Client(account_sid, auth_token)
 
 
 
 data = pd.read_csv("merged_data.csv")
+datat = pd.read_csv("merged_data.csv")
 
-datag = data[['Price','Sentiment']].groupby(data['Time']).mean()
+pricedat = data['Price'].groupby(data['Time']).mean()
+sentidat = datat['Sentiment'].groupby(data['Time']).mean()
+
+
+print(pricedat)
+print(sentidat)
 
 from sklearn.preprocessing import MinMaxScaler
-values = datag['Price'].values.reshape(-1,1)
-sentiment = datag['Sentiment'].values.reshape(-1,1)
+values = pricedat['Price'].values.reshape(-1,1)
+sentiment = sentidat['Sentiment'].values.reshape(-1,1)
 values = values.astype('float32')
 sentiment = sentiment.astype('float32')
 scaler = MinMaxScaler(feature_range=(0, 1))
